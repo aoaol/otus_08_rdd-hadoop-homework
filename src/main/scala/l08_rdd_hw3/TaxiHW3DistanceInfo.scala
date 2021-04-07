@@ -1,38 +1,55 @@
-package l08_rdd_hw2
+package l08_rdd_hw3
+
+import java.util.Properties
 
 import org.apache.spark.sql.SparkSession
-import java.nio.file.{Paths, Files}
-import scala.reflect.io.Directory
-import java.io.File
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.types.LongType
 
-// https://gist.github.com/aoaol/bbe2820d7e0831279a6ccf96b76ded37
-object TaxiHW1BeTopTime extends App {
+object TaxiHW3DistanceInfo extends App {
 
-  val outDir = "src/main/resources/data_out/top_times"
+  val url = "jdbc:postgresql://localhost:5432/otus"
+  val connectionProperties = new Properties()
+  connectionProperties.put("user", "docker")
+  connectionProperties.put("password", "docker")
+  connectionProperties.put("driver", "org.postgresql.Driver")
+
+
   val spark = SparkSession.builder().config("spark.master", "local")
-    .appName("Taxi - Top Time Application")
+    .appName("Taxi - Distance Info Application")
     .getOrCreate()
 
-  val rddTaxiF = spark.read.parquet("src/main/resources/data/yellow_taxi_jan_25_2018").rdd
+  import spark.implicits._
 
-  // x.getTimestamp(1)  is "pickup_datetime" column
-  val listGoal = rddTaxiF.map( x => (x.getTimestamp(1).toLocalDateTime.getHour, 1) )
-    .reduceByKey(_ + _)
-    .sortBy( _._2, ascending = false)
-    .map( x => s"${x._1}\t\t${x._2}")
+  val dfTaxiF = spark.read.parquet("src/main/resources/data/yellow_taxi_jan_25_2018")
 
-  listGoal.persist()
+  val window  = Window.orderBy("trip_distance")
 
-  println("Top 10 hours:")
-  listGoal.take(10).foreach( x => println( x ))
+  val dfGoal = dfTaxiF.select($"tpep_dropoff_datetime", $"tpep_pickup_datetime", $"trip_distance", $"total_amount", $"tip_amount")
+    .withColumn("percent_rank", round( percent_rank().over( window ), 1))
+    .withColumn("duration_in_min", round( ($"tpep_dropoff_datetime".cast( LongType ) - $"tpep_pickup_datetime".cast( LongType )) / 60, 2))
+    .where( $"trip_distance" > lit(0)   &&   $"duration_in_min" > lit(0))
+    .groupBy("percent_rank")
+    .agg(
+      count("trip_distance").as("total trips"),
+      min("trip_distance").as("min distance"),
+      callUDF("percentile_approx", $"trip_distance", lit(0.5)).as("median distance"),
+      callUDF("percentile_approx", $"duration_in_min", lit(0.5)).as("median duration"),
+      callUDF("percentile_approx", $"total_amount", lit(0.5)).as("median total amount"),
+      callUDF("percentile_approx", $"tip_amount", lit(0.5)).as("median tip amount"),
+    )
+    .withColumn("dur total amount", round( $"median total amount" / $"median duration", 2))
+    .withColumn("dur tip amount", round( $"median tip amount" / $"median duration", 2))
+    .orderBy( $"percent_rank")
+    .cache()
 
-  // Deleting target because saveAsTextFile() can not overwrite it.
-  if (Files.exists( Paths.get( outDir ))) {
-    val directory = new Directory( new File(outDir))
-    directory.deleteRecursively()
+  dfGoal.show()
+
+  try {
+    dfGoal.write.mode("overwrite").jdbc( url, "amount_by_distance", connectionProperties)
   }
-
-  listGoal.coalesce(1).saveAsTextFile(outDir)
-
-  listGoal.unpersist()
+  finally {
+    dfGoal.unpersist()
+  }
 }
