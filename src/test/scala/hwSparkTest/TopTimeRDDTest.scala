@@ -8,7 +8,7 @@ import org.scalatest.matchers.should.Matchers
 class TopTimeRDDTest extends AnyFlatSpec with Matchers {
   implicit val spark = SparkSession.builder()
     .config("spark.master", "local")
-    .appName("Test №1 for Big Data Application")
+    .appName("Testing PickupsByHour mart using AnyFlatSpec")
     .getOrCreate()
 
 
@@ -17,8 +17,8 @@ class TopTimeRDDTest extends AnyFlatSpec with Matchers {
 
     val bestHourPickUps = taxiPickupsByHour( rddTaxi ).take(2).toSeq
     val answer = Array( BestHourData( 19, 22121),
-                        BestHourData( 20, 21598))
-                        .toSeq
+                        BestHourData( 20, 21598)
+                      ).toSeq
 
     bestHourPickUps should equal (answer)
   }
