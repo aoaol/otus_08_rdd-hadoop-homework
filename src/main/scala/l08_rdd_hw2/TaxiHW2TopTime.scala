@@ -6,7 +6,7 @@ import scala.reflect.io.Directory
 import java.io.File
 
 // https://gist.github.com/aoaol/bbe2820d7e0831279a6ccf96b76ded37
-object TaxiHW1BeTopTime extends App {
+object TaxiHW2TopTime extends App {
 
   val outDir = "src/main/resources/data_out/top_times"
   val spark = SparkSession.builder().config("spark.master", "local")

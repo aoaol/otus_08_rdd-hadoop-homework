@@ -4,22 +4,26 @@ import org.apache.spark.sql.{ Row, SparkSession }
 import org.apache.spark.rdd.RDD
 
 // https://gist.github.com/aoaol/bbe2820d7e0831279a6ccf96b76ded37
-object TaxiHW1BeTopTimeByMethod extends App {
+object TaxiHW2TopTimeByMethod extends App {
+
+  case class BestHourData( dayHour: Int, pickups: Int) {
+    def toStr(): String = s"$dayHour\t\t$pickups"
+  }
 
   // Getting data to RDD.
   def loadParquet2RDD( path: String)(implicit spark: SparkSession): RDD[ Row ] = spark.read.load( path ).rdd
 
   // Counting number of pickups by a hour of day.
-  def taxiPickupsByHour( rddTaxi: RDD[ Row ]): RDD[ String ] = {
+  def taxiPickupsByHour( rddTaxi: RDD[ Row ]): RDD[ BestHourData ] = {
     // x.getTimestamp(1)  is "pickup_datetime" column
     rddTaxi.map( x => (x.getTimestamp( 1 ).toLocalDateTime.getHour, 1) )
       .reduceByKey(_ + _)
       .sortBy( _._2, ascending = false)
-      .map( x => s"${x._1}\t\t${x._2}")
+      .map( x => BestHourData( x._1, x._2))
   }
 
   // Saving the result to a file.
-  def saveRDD2TextFile[A]( listGoal: RDD[ A ], outDir: String): Unit = {
+  def saveRDD2TextFile[ A ] (listGoal: RDD[ A ], outDir: String): Unit = {
     import java.nio.file.{ Files, Paths }
     import scala.reflect.io.Directory
     import java.io.File
@@ -30,7 +34,7 @@ object TaxiHW1BeTopTimeByMethod extends App {
       directory.deleteRecursively()
     }
 
-    listGoal.coalesce(1).saveAsTextFile( outDir )
+    listGoal.asInstanceOf[ RDD[ BestHourData ]].map( x => x.toStr()).coalesce(1).saveAsTextFile( outDir )
   }
 
   override def main ( args: Array[ String ] ): Unit = {
@@ -47,7 +51,7 @@ object TaxiHW1BeTopTimeByMethod extends App {
     listGoal.persist()
 
     println("Top 10 hours:")
-    listGoal.take(10).foreach( x => println( x ))
+    listGoal.take(10).foreach( x => println( x.toStr()))
 
     try {
       saveRDD2TextFile( listGoal, outDir)

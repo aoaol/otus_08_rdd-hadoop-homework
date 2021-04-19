@@ -4,7 +4,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{broadcast, col}
 
 // https://gist.github.com/aoaol/2157bc095b88c58431661fa0a9ba35b0
-object TaxiHW1BeTopBoroughsByMethod extends App {
+object TaxiHW1TopBoroughsByMethod extends App {
 
 
   // Getting data to RDD.

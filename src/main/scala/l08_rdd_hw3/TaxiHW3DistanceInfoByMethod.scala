@@ -35,7 +35,7 @@ object TaxiHW3DistanceInfoByMethod extends App {
         .orderBy( $"percent_rank")
   }
 
-  def writeDF2Poostgre( df2Write: DataFrame) : Unit = {
+  def writeDF2Postgres( df2Write: DataFrame) : Unit = {
     val url = "jdbc:postgresql://localhost:5432/otus"
     val connectionProperties = new Properties()
     connectionProperties.put("user", "docker")
@@ -59,7 +59,7 @@ object TaxiHW3DistanceInfoByMethod extends App {
     dfGoal.show()
 
     try {
-      writeDF2Poostgre( dfGoal )
+      writeDF2Postgres( dfGoal )
     }
     finally {
       dfGoal.unpersist()
