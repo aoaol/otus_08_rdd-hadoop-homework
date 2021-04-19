@@ -8,7 +8,7 @@ import org.apache.spark.sql.test.SharedSparkSession
 
 class DistributionByDistanceInfoTest extends SharedSparkSession {
 
-  test("join - processTaxiData") {
+  test("DistributionByDistance mart test.") {
     val taxiDF = loadParquet2DF("src/main/resources/data/yellow_taxi_jan_25_2018")
 
     val distanceDistribution = taxiPickupsByDistanceRange( taxiDF )
