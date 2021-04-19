@@ -12,7 +12,7 @@ class TopTimeRDDTest extends AnyFlatSpec with Matchers {
     .getOrCreate()
 
 
-  it should "successfully calculate the distribution of number of pickups by a hour of day" in {
+  it should "Successfully calculate the distribution of number of pickups by a hour of day" in {
     val rddTaxi = loadParquet2RDD("src/main/resources/data/yellow_taxi_jan_25_2018")
 
     val bestHourPickUps = taxiPickupsByHour( rddTaxi ).take(2).toSeq
