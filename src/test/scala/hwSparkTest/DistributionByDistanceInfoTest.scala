@@ -4,7 +4,7 @@ package hwSparkTest
 import l08_rdd_hw3.TaxiHW3DistanceInfoByMethod.{ loadParquet2DF, taxiPickupsByDistanceRange, writeDF2Postgres }
 import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
 import org.apache.spark.sql.QueryTest.checkAnswer
-import org.apache.spark.sql.{ DataFrame, Row }
+import org.apache.spark.sql.{ Row }
 import org.apache.spark.sql.test.SharedSparkSession
 import org.scalatest.matchers.should.Matchers
 import java.util.Properties
