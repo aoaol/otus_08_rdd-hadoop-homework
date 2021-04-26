@@ -33,8 +33,16 @@ libraryDependencies ++= Seq(
   // postgres for DB connectivity
   "org.postgresql" % "postgresql" % postgresVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-    // https://mvnrepository.com/artifact/org.apache.flink/flink-java
-    "org.apache.flink" % "flink-java" % flinkVersion,
+  "org.scalacheck" %% "scalacheck" % "1.14.3" ,
+  "org.scalatestplus" %% "scalacheck-1-14" % "3.2.2.0",
+  "org.scalikejdbc"         %% "scalikejdbc"                          % "3.5.0"   % Test,
+  "org.scalikejdbc"         %% "scalikejdbc-test"                     % "3.5.0"   % Test,
+  "com.dimafeng"            %% "testcontainers-scala-postgresql"      % "0.38.7"  % Test,
+  "com.dimafeng"            %% "testcontainers-scala-scalatest"       % "0.38.7"  % Test,
+  "org.flywaydb"            % "flyway-core"                           % "7.3.2",
+  //"org.postgresql"          % "postgresql"                            % "42.2.2" ,
+  // https://mvnrepository.com/artifact/org.apache.flink/flink-java
+  "org.apache.flink" % "flink-java" % flinkVersion,
   "org.apache.flink" %% "flink-streaming-java" % flinkVersion,
   "org.apache.flink" %% "flink-clients" % flinkVersion,
   "org.apache.flink" %% "flink-scala" % flinkVersion,
@@ -48,4 +56,5 @@ libraryDependencies ++= Seq(
   "org.apache.flink" %% "flink-test-utils" % flinkVersion,
   "org.apache.flink" %% "flink-streaming-java" % flinkVersion,
   "org.apache.flink" %% "flink-runtime" % flinkVersion
+
 )

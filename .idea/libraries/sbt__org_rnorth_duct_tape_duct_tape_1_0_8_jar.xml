@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sbt: org.rnorth.duct-tape:duct-tape:1.0.8:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.rnorth.duct-tape/duct-tape/jars/duct-tape-1.0.8.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.rnorth.duct-tape/duct-tape/srcs/duct-tape-1.0.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

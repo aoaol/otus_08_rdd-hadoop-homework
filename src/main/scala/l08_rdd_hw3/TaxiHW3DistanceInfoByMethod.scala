@@ -1,11 +1,12 @@
 package l08_rdd_hw3
 
-import java.util.Properties
-
+import model._
 import org.apache.spark.sql.{ DataFrame, SparkSession }
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.LongType
+import java.util.Properties
+
 
 object TaxiHW3DistanceInfoByMethod extends App {
 
@@ -35,15 +36,18 @@ object TaxiHW3DistanceInfoByMethod extends App {
         .orderBy( $"percent_rank")
   }
 
-  def writeDF2Postgres( df2Write: DataFrame) : Unit = {
-    val url = "jdbc:postgresql://localhost:5432/otus"
+  def getPostrgeConnProps(): Properties = {
     val connectionProperties = new Properties()
     connectionProperties.put("user", "docker")
     connectionProperties.put("password", "docker")
     connectionProperties.put("driver", "org.postgresql.Driver")
+    connectionProperties.put("url", "jdbc:postgresql://localhost:5432/otus")
 
-    df2Write.write.mode("overwrite").jdbc( url, "amount_by_distance", connectionProperties)
+    connectionProperties
   }
+
+  def writeDF2Postgres( df2Write: DataFrame, tableName: String, connProps: Properties) : Unit =
+    df2Write.write.mode("overwrite").jdbc( connProps.get("url").asInstanceOf[String], tableName, connProps)
 
 
   override def main ( args: Array[ String ] ): Unit = {
@@ -59,7 +63,7 @@ object TaxiHW3DistanceInfoByMethod extends App {
     dfGoal.show()
 
     try {
-      writeDF2Postgres( dfGoal )
+      writeDF2Postgres( dfGoal, "amount_by_distance", getPostrgeConnProps())
     }
     finally {
       dfGoal.unpersist()

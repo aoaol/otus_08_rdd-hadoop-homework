@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sbt: org.testcontainers:postgresql:1.15.0:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.testcontainers/postgresql/jars/postgresql-1.15.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.testcontainers/postgresql/srcs/postgresql-1.15.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,6 +1,9 @@
 package l08_rdd_hw2
 
-import org.apache.spark.sql.{ Row, SparkSession }
+import java.sql.Timestamp
+
+import model.TaxiRide
+import org.apache.spark.sql.{ Dataset, Row, SparkSession }
 import org.apache.spark.rdd.RDD
 
 // https://gist.github.com/aoaol/bbe2820d7e0831279a6ccf96b76ded37
@@ -11,19 +14,22 @@ object TaxiHW2TopTimeByMethod extends App {
   }
 
   // Getting data to RDD.
-  def loadParquet2RDD( path: String)(implicit spark: SparkSession): RDD[ Row ] = spark.read.load( path ).rdd
+  def loadParquet2RDD( path: String)(implicit spark: SparkSession): RDD[ TaxiRide ] = {
+    import spark.implicits._
+    spark.read.load( path ).as[ TaxiRide ].rdd
+  }
 
   // Counting number of pickups by a hour of day.
-  def taxiPickupsByHour( rddTaxi: RDD[ Row ]): RDD[ BestHourData ] = {
+  def taxiPickupsByHour( rddTaxi: RDD[ TaxiRide ]): RDD[ BestHourData ] = {
     // x.getTimestamp(1)  is "pickup_datetime" column
-    rddTaxi.map( x => (x.getTimestamp( 1 ).toLocalDateTime.getHour, 1) )
+    rddTaxi.map( x => (x.tpep_pickup_datetime.toLocalDateTime.getHour, 1) )
       .reduceByKey(_ + _)
       .sortBy( _._2, ascending = false)
       .map( x => BestHourData( x._1, x._2))
   }
 
   // Saving the result to a file.
-  def saveRDD2TextFile[ A ] (listGoal: RDD[ A ], outDir: String): Unit = {
+  def saveRDD2TextFile( listGoal: RDD[ BestHourData ], outDir: String): Unit = {
     import java.nio.file.{ Files, Paths }
     import scala.reflect.io.Directory
     import java.io.File
@@ -34,7 +40,7 @@ object TaxiHW2TopTimeByMethod extends App {
       directory.deleteRecursively()
     }
 
-    listGoal.asInstanceOf[ RDD[ BestHourData ]].map( x => x.toStr()).coalesce(1).saveAsTextFile( outDir )
+    listGoal.map( x => x.toStr()).coalesce(1).saveAsTextFile( outDir )
   }
 
   override def main ( args: Array[ String ] ): Unit = {
